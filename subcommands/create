@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+source "$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)")/config"
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+
+create-command() {
+  declare desc="Create litestream container for the application"
+  local cmd="$PLUGIN_COMMAND_PREFIX:create" argv=("$@")
+  [[ ${argv[0]} == "$cmd" ]] && shift 1
+  declare APP_NAME="$1" DB_PATH="$2" DB_NAME="$3" REPLICA_URL="$4"
+
+  # TODO:
+  # - validate APP_NAME
+  # - validate DB_PATH exists - does it need to be absolute?
+  # - can we combine DB path and filename and split at the last "/"?
+  # - have a --start flag to automatically start?
+
+  source $LITESTREAM_CREDENTIALS_FILE
+
+  SERVICE_NAME="dokku.$PLUGIN_COMMAND_PREFIX.$APP_NAME"
+
+  dokku_log_info2_quiet "Creating litestream container"
+  docker create --name "$SERVICE_NAME" \
+    --env "LITESTREAM_ACCESS_KEY_ID=$LITESTREAM_ACCESS_KEY_ID" \
+    --env "LITESTREAM_SECRET_ACCESS_KEY=$LITESTREAM_SECRET_ACCESS_KEY" \
+    --volume "$DB_PATH:/data" \
+    $LITESTREAM_IMAGE replicate "/data/$DB_NAME" "$REPLICA_URL"
+  dokku_log_verbose_quiet "Container created but not started - start it with 'litestream:start $APP_NAME'"
+}
+
+create-command "$@"

@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+source "$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)")/config"
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+
+authorize-command() {
+  declare desc="Authorize litestream to a remote storage, e.g. S3"
+  local cmd="$PLUGIN_COMMAND_PREFIX:authorize" argv=("$@")
+  [[ ${argv[0]} == "$cmd" ]] && shift 1
+
+  # TODO:
+  # - is storing the credentials plain text in the plugin config directory safe?
+
+  dokku_log_info2_quiet "Authorizing litestream for replica location"
+
+  read -e -p "Enter your ACCESS_KEY_ID:    " ACCESS_KEY_ID
+  read -e -p "Enter you SECRET_ACCESS_KEY: " SECRET_ACCESS_KEY
+
+  dokku_log_verbose_quiet "Saving credentials"
+
+  LITESTREAM_CREDENTIALS_FILE="$PLUGIN_CONFIG_ROOT/credentials"
+  cat >"$LITESTREAM_CREDENTIALS_FILE" <<EOL
+LITESTREAM_ACCESS_KEY_ID=$ACCESS_KEY_ID
+LITESTREAM_SECRET_ACCESS_KEY=$SECRET_ACCESS_KEY
+EOL
+  dokku_log_verbose_quiet "Credentials saved"
+}
+
+authorize-command "$@"

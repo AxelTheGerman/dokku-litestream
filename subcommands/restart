@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+source "$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)")/config"
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+
+restart-command() {
+  declare desc="Restart litestream container for the application"
+  local cmd="$PLUGIN_COMMAND_PREFIX:start" argv=("$@")
+  [[ ${argv[0]} == "$cmd" ]] && shift 1
+  declare APP_NAME="$1"
+
+  # TODO:
+  # - validate APP_NAME
+  # - reuse litestream:stop and litestream:start?
+
+  local SERVICE_NAME="dokku.$PLUGIN_COMMAND_PREFIX.$APP_NAME"
+  local ID=$(docker ps -aq --no-trunc --filter "name=^/$SERVICE_NAME$" --format '{{ .ID }}') || true
+  [[ -z $ID ]] && dokku_log_warn "Service is already stopped" && return 0
+
+  if [[ -n $ID ]]; then
+    dokku_log_info2_quiet "Stopping litestream container"
+    docker stop "$SERVICE_NAME" >/dev/null
+    dokku_log_verbose_quiet "Container stopped"
+  else
+    dokku_log_verbose_quiet "No container exists for $APP_NAME"
+  fi
+
+  dokku_log_info2_quiet "Starting litestream container"
+  docker start "$SERVICE_NAME"
+  dokku_log_verbose_quiet "Started container for $APP_NAME"
+}
+
+restart-command "$@"

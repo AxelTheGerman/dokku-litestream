@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+source "$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)")/config"
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+
+restore-command() {
+  declare desc="Restore SQLite database from replica"
+  local cmd="$PLUGIN_COMMAND_PREFIX:restore" argv=("$@")
+  [[ ${argv[0]} == "$cmd" ]] && shift 1
+  declare DB_OUTPUT_PATH="$1" DB_NAME="$2" REPLICA_URL="$3"
+
+  # TODO:
+  # - ensure DB_OUTPUT_PATH exists and can be mounted, i.e. need absolute path?
+  # - can we combine DB path and filename into one argument and split at the last "/"?
+  # - add flag for --verbose?
+
+  source $LITESTREAM_CREDENTIALS_FILE
+
+  dokku_log_info2_quiet "Restoring SQLite database"
+  docker run --env "LITESTREAM_ACCESS_KEY_ID=$LITESTREAM_ACCESS_KEY_ID" \
+    --env "LITESTREAM_SECRET_ACCESS_KEY=$LITESTREAM_SECRET_ACCESS_KEY" \
+    --volume "$DB_OUTPUT_PATH:/data" \
+    $LITESTREAM_IMAGE restore -o "/data/$DB_NAME" "$REPLICA_URL"
+  dokku_log_verbose_quiet "Replica restored"
+}
+
+restore-command "$@"

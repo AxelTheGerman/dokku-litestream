@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+source "$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)")/config"
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+
+logs-command() {
+  declare desc="Print the litestream container logs"
+  local cmd="$PLUGIN_COMMAND_PREFIX:logs" argv=("$@")
+  [[ ${argv[0]} == "$cmd" ]] && shift 1
+  declare APP_NAME="$1"
+
+  # TODO:
+  # - validate APP_NAME
+  # - flag to keep tailing
+
+  local SERVICE_NAME="dokku.$PLUGIN_COMMAND_PREFIX.$APP_NAME"
+  local ID=$(docker ps -aq --no-trunc --filter "name=^/$SERVICE_NAME$" --format '{{ .ID }}') || true
+  [[ -z $ID ]] && dokku_log_info2_quiet "Service is not running" && return 0
+
+  if [[ -n $ID ]]; then
+    dokku_log_info2_quiet "Retrieving litestream container logs"
+    docker logs "$SERVICE_NAME"
+  else
+    dokku_log_verbose_quiet "No container exists for $APP_NAME"
+  fi
+
+}
+
+logs-command "$@"

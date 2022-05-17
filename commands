@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+case "$1" in
+  help | litestream:help)
+    help_content_func () {
+      declare desc="return help_content string"
+      cat<<help_content
+    litestream:authorize, Configure litestream credentials for remote storage location, e.g. AWS S3
+    litestream:create <app_name> <db_storage_path> <db_name> <replica_url>, Creates a new litestream replication container
+    litestream:destroy <app_name>, Removes an existing litestream replication container
+    litestream:logs <app_name>, Prints the litestream container logs
+    litestream:restart <app_name>, Restarts the litestream replication container
+    litestream:restore <db_storage_path> <db_name> <replica_url>, Restores the SQLite database from a replica to local storage
+    litestream:start <app_name>, Starts the litestream replication container for the application
+    litestream:stop <app_name>, Stops the litestream replication container for the application
+help_content
+    }
+
+    if [[ $1 = "litestream:help" ]] ; then
+        echo -e 'Usage: litestream create <app_name> <db_storage_path> <db_name> <replica_url>'
+        echo ''
+        echo 'Create a litestream replication container for the application.'
+        echo '  - app_name: specify the app name for this service'
+        echo '  - db_storage_path: specify the Dokku host local path to the SQLite database'
+        echo '  - db_name: specify the filename for the SQLite database'
+        echo '  - replica_url: specify the S3 path for the remote SQLite replica'
+        echo ''
+        echo 'Additional commands:'
+        help_content_func | sort | column -c2 -t -s,
+    else
+        help_content_func
+    fi
+    ;;
+
+  *)
+    exit $DOKKU_NOT_IMPLEMENTED_EXIT
+    ;;
+
+esac

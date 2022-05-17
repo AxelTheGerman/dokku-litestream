@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Cleanup up extra containers created
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/config"
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+PLUGIN="$1"
+
+[[ "$PLUGIN" = "litestream" ]] && rm -rf $PLUGIN_CONFIG_ROOT && rm -rf $PLUGIN_DATA_ROOT

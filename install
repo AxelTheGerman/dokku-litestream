@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/config"
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+
+plugin-install() {
+  pull-docker-image() {
+    declare IMAGE="$1"
+    if [[ "$PLUGIN_DISABLE_PULL" == "true" ]]; then
+      echo " !     ${PLUGIN_DISABLE_PULL_VARIABLE} environment variable detected. Not running pull command." 1>&2
+      echo " !        docker pull ${IMAGE}" 1>&2
+      return
+    fi
+
+    if [[ "$(docker images -q "${IMAGE}" 2>/dev/null)" == "" ]]; then
+      docker pull "${IMAGE}"
+    fi
+  }
+
+  dokku_log_info2_quiet "Installing $PLUGIN_COMMAND_PREFIX"
+
+  pull-docker-image "${PLUGIN_IMAGE}:${PLUGIN_IMAGE_VERSION}"
+
+  mkdir -p "$PLUGIN_DATA_ROOT" || echo "Failed to create $PLUGIN_SERVICE data directory"
+  chown -R "${DOKKU_SYSTEM_USER}:${DOKKU_SYSTEM_GROUP}" "$PLUGIN_DATA_ROOT"
+
+  mkdir -p "$PLUGIN_CONFIG_ROOT" || echo "Failed to create $PLUGIN_SERVICE config directory"
+  chown -R "${DOKKU_SYSTEM_USER}:${DOKKU_SYSTEM_GROUP}" "$PLUGIN_CONFIG_ROOT"
+
+  dokku_log_verbose_quiet "Plugin install complete"
+}
+
+plugin-install "$@"
