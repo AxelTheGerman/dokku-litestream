@@ -15,7 +15,8 @@ restore-command() {
   # - can we combine DB path and filename into one argument and split at the last "/"?
   # - add flag for --verbose?
 
-  source $LITESTREAM_CREDENTIALS_FILE
+  local LITESTREAM_ACCESS_KEY_ID=$(cat "$LITESTREAM_CREDENTIALS_ACCESS_KEY_ID")
+  local LITESTREAM_SECRET_ACCESS_KEY=$(cat "$LITESTREAM_CREDENTIALS_SECRET_ACCESS_KEY")
 
   dokku_log_info2_quiet "Restoring SQLite database"
   docker run --env "LITESTREAM_ACCESS_KEY_ID=$LITESTREAM_ACCESS_KEY_ID" \

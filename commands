@@ -7,8 +7,9 @@ case "$1" in
     help_content_func () {
       declare desc="return help_content string"
       cat<<help_content
-    litestream:authorize, Configure litestream credentials for remote storage location, e.g. AWS S3
+    litestream:auth, Configure litestream credentials for remote storage location, e.g. AWS S3
     litestream:create <app_name> <db_storage_path> <db_name> <replica_url>, Creates a new litestream replication container
+    litestream:deauth, Delete litestream credentials to the remote storage location, e.g. AWS S3
     litestream:destroy <app_name>, Removes an existing litestream replication container
     litestream:logs <app_name>, Prints the litestream container logs
     litestream:restart <app_name>, Restarts the litestream replication container

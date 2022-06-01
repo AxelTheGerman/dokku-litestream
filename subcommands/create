@@ -16,7 +16,8 @@ create-command() {
   # - can we combine DB path and filename and split at the last "/"?
   # - have a --start flag to automatically start?
 
-  source $LITESTREAM_CREDENTIALS_FILE
+  local LITESTREAM_ACCESS_KEY_ID=$(cat "$LITESTREAM_CREDENTIALS_ACCESS_KEY_ID")
+  local LITESTREAM_SECRET_ACCESS_KEY=$(cat "$LITESTREAM_CREDENTIALS_SECRET_ACCESS_KEY")
 
   SERVICE_NAME="dokku.$PLUGIN_COMMAND_PREFIX.$APP_NAME"
 

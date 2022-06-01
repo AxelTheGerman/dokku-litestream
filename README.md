@@ -93,7 +93,7 @@ sudo dokku plugin:install https://github.com/axelthegerman/dokku-litestream lite
 Authorize dokku-litestream to access your remote storage service:
 
 ```
-dokku litestream:authorize
+dokku litestream:auth
 =====> Authorizing litestream for replica location
 Enter your ACCESS_KEY_ID:    <paste your access key ID here>
 Enter you SECRET_ACCESS_KEY: <paste your secret access key here>

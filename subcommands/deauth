@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+source "$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)")/config"
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+
+deauth-command() {
+  declare desc="Revoke authorization for litestream to a remote storage, e.g. S3"
+  local cmd="$PLUGIN_COMMAND_PREFIX:deauth" argv=("$@")
+  [[ ${argv[0]} == "$cmd" ]] && shift 1
+
+  dokku_log_info2_quiet "Revoking authorization for litestream replica location"
+
+  dokku_log_verbose_quiet "Deleting credentials"
+
+  rm -rf $LITESTREAM_CREDENTIALS_ROOT
+
+  dokku_log_verbose_quiet "Credentials deleted"
+}
+
+deauth-command "$@"
