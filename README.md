@@ -47,11 +47,11 @@ Configure persistent storage for you Dokku application:
 
 *On your Dokku host:*
 ```
-dokku storage:ensure-directory my-sqlite-application my-sqlite-application--db
+dokku storage:ensure-directory my-sqlite-application--db
 dokku storage:mount my-sqlite-application /var/lib/dokku/data/storage/my-sqlite-application--db:/app/db/litestream
 ```
 
-**Important: Do not use the /app/db directory directly as it contains other important database files that will otherwise be erased.**
+**Important: When working with Ruby on Rails, do not use the /app/db directory directly as it contains other important database files that will otherwise be erased.**
 
 Now this directory needs to be the location for your application's SQLite database, e.g. in Rails update the `config/database.yml` as so:
 
