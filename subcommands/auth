@@ -16,7 +16,7 @@ auth-command() {
 
   dokku_log_verbose_quiet "Saving credentials"
 
-  mkdir $LITESTREAM_CREDENTIALS_ROOT
+  mkdir -p $LITESTREAM_CREDENTIALS_ROOT
 
   echo $ACCESS_KEY_ID > $LITESTREAM_CREDENTIALS_ACCESS_KEY_ID
   echo $SECRET_ACCESS_KEY > $LITESTREAM_CREDENTIALS_SECRET_ACCESS_KEY
