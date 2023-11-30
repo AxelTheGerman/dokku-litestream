@@ -15,7 +15,7 @@ restart-command() {
   # - reuse litestream:stop and litestream:start?
 
   local SERVICE_NAME="dokku.$PLUGIN_COMMAND_PREFIX.$APP_NAME"
-  local ID=$(docker ps -aq --no-trunc --filter "name=^/$SERVICE_NAME$" --format '{{ .ID }}') || true
+  local ID=$(docker ps -a --no-trunc --filter "name=^/$SERVICE_NAME$" --format '{{ .ID }}') || true
   [[ -z $ID ]] && dokku_log_warn "Service is already stopped" && return 0
 
   if [[ -n $ID ]]; then

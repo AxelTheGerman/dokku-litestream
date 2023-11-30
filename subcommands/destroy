@@ -6,7 +6,7 @@ source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
 destroy-command() {
   declare desc="Destroy litestream container for the application"
-  local cmd="$PLUGIN_COMMAND_PREFIX:stop" argv=("$@")
+  local cmd="$PLUGIN_COMMAND_PREFIX:destroy" argv=("$@")
   [[ ${argv[0]} == "$cmd" ]] && shift 1
   declare APP_NAME="$1"
 
@@ -14,7 +14,7 @@ destroy-command() {
   # - validate APP_NAME
 
   local SERVICE_NAME="dokku.$PLUGIN_COMMAND_PREFIX.$APP_NAME"
-  local ID=$(docker ps -aq --no-trunc --filter "name=^/$SERVICE_NAME$" --format '{{ .ID }}') || true
+  local ID=$(docker ps -a --no-trunc --filter "name=^/$SERVICE_NAME$" --format '{{ .ID }}') || true
   [[ -z $ID ]] && dokku_log_warn "Service is already stopped" && return 0
 
   if [[ -n $ID ]]; then
